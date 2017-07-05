@@ -36,26 +36,15 @@ class GameScene: SKScene {
     
     var firstBar: SKSpriteNode!
     
-    var currentColor: CurrentColor = .blue {
-        
-        didSet {
-            switch currentColor {
-            case .pink:
-                pink.isHidden = false
-                
-            case .blue:
-                blue.isHidden = false
-            }
-        }
-    }
-    
     var lastColor: LastColor = .Pink {
         didSet{
             switch lastColor {
             case .Pink:
-                break
+                blue.isHidden = true
+                pink.isHidden = false
             case .Blue:
-                break
+                pink.isHidden = true
+                blue.isHidden = false
             }
         }
     }
@@ -72,20 +61,20 @@ class GameScene: SKScene {
         pink = childNode(withName: "pink") as! SKSpriteNode
         
         // MARK: manually stack the first two pieces
-        addTowerPiece(currentColor: .pink)
-        addTowerPiece(currentColor: .blue)
-        addRandomPieces(total: 2)
+        addTowerPiece(lastColor: .Pink)
+        addTowerPiece(lastColor: .Blue)
+        addRandomPieces(total: 1)
     }
     
     
-    func addTowerPiece (currentColor: CurrentColor) {
+    func addTowerPiece (lastColor: LastColor) {
         
         blue.position = firstBar.position
         pink.position = firstBar.position
         
         var newPiece = firstBar.copy() as! SKSpriteNode
         
-        if currentColor == .blue {
+        if lastColor == .Blue {
             newPiece = blue.copy() as! SKSpriteNode
             let lastPiece = colorTower.last
             
@@ -99,12 +88,11 @@ class GameScene: SKScene {
             
             addChild(newPiece)
             colorTower.append(newPiece)
-            lastColor = .Blue
             
             numberOfPieces += 1
             print(numberOfPieces)
             
-        } else if currentColor == .pink {
+        } else if lastColor == .Pink {
             newPiece = pink.copy() as! SKSpriteNode
             let lastPiece = colorTower.last
             
@@ -118,7 +106,6 @@ class GameScene: SKScene {
             
             addChild(newPiece)
             colorTower.append(newPiece)
-            lastColor = .Pink
             
             numberOfPieces += 1
             print(numberOfPieces)
@@ -134,17 +121,17 @@ class GameScene: SKScene {
             let rand = arc4random_uniform(100)
             
             if rand < 50 {
-                addTowerPiece(currentColor: .pink)
+                addTowerPiece(lastColor: .Pink)
             } else if rand < 100 {
-                addTowerPiece(currentColor: .blue)
+                addTowerPiece(lastColor: .Blue)
             }
         }
     }
     
-    override func update(_ currentTime: TimeInterval) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         blueButton.selectedHandler = {
             if self.lastColor ==  .Blue{
-                self.colorTower.last?.removeFromParent()
+                self.colorTower.first?.removeFromParent()
                 print("it works so far")
             }
             return
@@ -152,7 +139,7 @@ class GameScene: SKScene {
         
         pinkButton.selectedHandler = {
             if self.lastColor == .Pink{
-                self.colorTower.last?.removeFromParent()
+                self.colorTower.first?.removeFromParent()
                 print("this also works")
             }
             return
