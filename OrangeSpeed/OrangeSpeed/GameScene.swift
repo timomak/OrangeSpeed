@@ -24,30 +24,14 @@ enum LastColor {
 
 class GameScene: SKScene {
     
-    var blue: SKSpriteNode!
-    var pink: SKSpriteNode!
-    
     var blueButton: MSButtonNode!
     var pinkButton: MSButtonNode!
     
     var state: GameState = .title
     
-    var colorTower: [SKSpriteNode] = []
+    var colorTower: [coloredBar] = []
     
-    var firstBar: SKSpriteNode!
-    
-    var lastColor: LastColor = .Pink {
-        didSet{
-            switch lastColor {
-            case .Pink:
-                blue.isHidden = true
-                pink.isHidden = false
-            case .Blue:
-                pink.isHidden = true
-                blue.isHidden = false
-            }
-        }
-    }
+    var firstBar: coloredBar!
     
     var numberOfPieces = 0
     
@@ -56,10 +40,8 @@ class GameScene: SKScene {
         
         blueButton = childNode(withName: "blueButton") as! MSButtonNode
         pinkButton = childNode(withName: "pinkButton") as! MSButtonNode
-        firstBar = childNode(withName: "firstBar") as! SKSpriteNode
-        blue = childNode(withName: "blue") as! SKSpriteNode
-        pink = childNode(withName: "pink") as! SKSpriteNode
-        
+        firstBar = childNode(withName: "firstBar") as! coloredBar
+
         // MARK: manually stack the first two pieces
         addTowerPiece(lastColor: .Pink)
         addTowerPiece(lastColor: .Blue)
@@ -69,48 +51,23 @@ class GameScene: SKScene {
     
     func addTowerPiece (lastColor: LastColor) {
         
-        blue.position = firstBar.position
-        pink.position = firstBar.position
+        // MARK: adding new pieces to tower.
+        let newPiece = firstBar.copy() as! coloredBar
+        newPiece.connectBars()
         
-        var newPiece = firstBar.copy() as! SKSpriteNode
+        let lastPiece = colorTower.last
         
-        if lastColor == .Blue {
-            newPiece = blue.copy() as! SKSpriteNode
-            let lastPiece = colorTower.last
-            
-            let lastPosition = lastPiece?.position ?? blue.position
-            newPiece.position.x = lastPosition.x
-            newPiece.position.y = lastPosition.y + 32
-            
-            // Increments of Z position
-            let lastZPosition = lastPiece?.zPosition ?? blue.zPosition
-            newPiece.zPosition = lastZPosition
-            
-            addChild(newPiece)
-            colorTower.append(newPiece)
-            
-            numberOfPieces += 1
-            print(numberOfPieces)
-            
-        } else if lastColor == .Pink {
-            newPiece = pink.copy() as! SKSpriteNode
-            let lastPiece = colorTower.last
-            
-            let lastPosition = lastPiece?.position ?? pink.position
-            newPiece.position.x = lastPosition.x
-            newPiece.position.y = lastPosition.y + 32
-            
-            // Increments of Z position
-            let lastZPosition = lastPiece?.zPosition ?? pink.zPosition
-            newPiece.zPosition = lastZPosition
-            
-            addChild(newPiece)
-            colorTower.append(newPiece)
-            
-            numberOfPieces += 1
-            print(numberOfPieces)
-        }
+        let lastPosition = lastPiece?.position ?? firstBar.position
+        newPiece.position.x = lastPosition.x
+        newPiece.position.y = lastPosition.y + 32
         
+        // Increments of Z position
+        let lastZPosition = lastPiece?.zPosition ?? firstBar.zPosition
+        newPiece.zPosition = lastZPosition
+        
+        newPiece.lastColor = lastColor
+        addChild(newPiece)
+        colorTower.append(newPiece)
     }
     
     func addRandomPieces ( total: Int)
@@ -129,20 +86,27 @@ class GameScene: SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        blueButton.selectedHandler = {
-            if self.lastColor ==  .Blue{
-                self.colorTower.first?.removeFromParent()
-                print("it works so far")
-            }
-            return
-        }
         
-        pinkButton.selectedHandler = {
-            if self.lastColor == .Pink{
-                self.colorTower.first?.removeFromParent()
-                print("this also works")
-            }
-            return
+        let touch = touches.first!
+        
+        let location = touch.location(in: self )
+        
+        if let firstPiece = colorTower.first {
+            print(colorTower, "1")
+            colorTower.removeFirst()
+            print(colorTower, "2")
+            addRandomPieces(total: 1)
         }
+    }
+    func drawTower() {
+        var n: CGFloat = 0
+        for piece in colorTower {
+            let y = (n * 32)
+            piece.position.y -= (piece.position.y - y) * 0.5
+            n += 1
+        }
+    }
+    override func update(_ currentTime: TimeInterval) {
+        drawTower()
     }
 }

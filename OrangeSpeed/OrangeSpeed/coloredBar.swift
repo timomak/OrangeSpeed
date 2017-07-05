@@ -10,8 +10,8 @@ import SpriteKit
 
 class coloredBar: SKSpriteNode {
     
-    var rightChopstick: SKSpriteNode!
-    var leftChopstick: SKSpriteNode!
+    var blue: SKSpriteNode!
+    var pink: SKSpriteNode!
     
     override init(texture: SKTexture?, color: UIColor, size: CGSize) {
         super.init(texture: texture, color: color, size: size)
@@ -22,47 +22,23 @@ class coloredBar: SKSpriteNode {
     }
     
     func connectBars() {
-        rightChopstick = childNode(withName: "rightChopstick") as! SKSpriteNode
-        leftChopstick = childNode(withName: "leftChopstick") as! SKSpriteNode
+        blue = childNode(withName: "blue") as! SKSpriteNode
+        pink = childNode(withName: "pink") as! SKSpriteNode
         
-        side = .none
+        
+        lastColor = .Blue
     }
     
-    var side: Side = .none {
-        
-        didSet {
-            switch side {
-            case .left:
-                leftChopstick.isHidden = false
-                
-            case .right:
-                rightChopstick.isHidden = false
-                
-            case .none:
-                leftChopstick.isHidden = true
-                rightChopstick.isHidden = true
+    var lastColor: LastColor = .Pink {
+        didSet{
+            switch lastColor {
+            case .Pink:
+                blue.isHidden = true
+                pink.isHidden = false
+            case .Blue:
+                pink.isHidden = true
+                blue.isHidden = false
             }
-            
         }
-    }
-    
-    func flip(_ side:Side) {
-        
-        // MARK: Flipping animation
-        
-        var actionName: String = ""
-        
-        if side == .left {
-            actionName = "FlipRight"
-        } else if side == .right {
-            actionName = "FlipLeft"
-        }
-        
-        let flip = SKAction(named: actionName)!
-        
-        let remove = SKAction.removeFromParent()
-        
-        let sequence = SKAction.sequence([flip, remove])
-        run(sequence)
     }
 }
