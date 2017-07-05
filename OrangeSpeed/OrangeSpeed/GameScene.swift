@@ -45,7 +45,7 @@ class GameScene: SKScene {
         // MARK: manually stack the first two pieces
         addTowerPiece(lastColor: .Pink)
         addTowerPiece(lastColor: .Blue)
-        addRandomPieces(total: 1)
+        addRandomPieces(total: 10)
     }
     
     
@@ -101,7 +101,7 @@ class GameScene: SKScene {
     func drawTower() {
         var n: CGFloat = 0
         for piece in colorTower {
-            let y = (n * 32)
+            let y = (n * 32) + 10
             piece.position.y -= (piece.position.y - y) * 0.5
             n += 1
         }
